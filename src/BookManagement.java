@@ -3,21 +3,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.regex.Pattern;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 public class BookManagement extends JFrame {
     static class Book {
@@ -32,22 +18,17 @@ public class BookManagement extends JFrame {
         }
 
         public String toString() {
-            return "<html><body><b>Tytuł:</b> " + title + "<br><b>Autor:</b> " + author + "<br><b>Rok:</b> " + year + "<br><b>Gatunek:</b> " + genre + "</body></html>";
+            return title + " (" + author + ", " + year + ")";
         }
     }
 
-
     private ArrayList<Book> books;
-
-
     private DefaultListModel<String> listModel;
     private JList<String> bookList;
-    private JTextField searchField;
-    private JTextField titleField, authorField, yearField, genreField;
+    private JTextField searchField, titleField, authorField, yearField, genreField;
     private JComboBox<String> sortComboBox;
 
     public BookManagement() {
-
         setTitle("Zarządzanie książkami");
         setSize(600, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -59,9 +40,7 @@ public class BookManagement extends JFrame {
         listModel = new DefaultListModel<>();
         bookList = new JList<>(listModel);
         bookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        bookList.setVisibleRowCount(10);
         updateBookList();
-
 
         searchField = new JTextField(20);
         JButton searchButton = new JButton("Szukaj");
@@ -71,7 +50,6 @@ public class BookManagement extends JFrame {
         searchPanel.add(new JLabel("Wyszukaj książkę:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
-
 
         JPanel addPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         addPanel.setBorder(BorderFactory.createTitledBorder("Dodaj nową książkę"));
@@ -91,29 +69,13 @@ public class BookManagement extends JFrame {
         addButton.addActionListener(e -> addBook());
         addPanel.add(addButton);
 
-
         String[] sortOptions = {"Tytuł", "Autor", "Rok", "Gatunek"};
         sortComboBox = new JComboBox<>(sortOptions);
         sortComboBox.addActionListener(e -> sortBooks((String) sortComboBox.getSelectedItem()));
 
-        JPanel sortPanel = new JPanel(new BorderLayout());
-        sortPanel.add(new JLabel("Sortuj według:"), BorderLayout.WEST);
-        sortPanel.add(sortComboBox, BorderLayout.CENTER);
-
-        JButton removeButton = new JButton("Usuń");
-        removeButton.addActionListener(e -> removeBook());
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(removeButton);
-
-        JPanel controlPanel = new JPanel(new BorderLayout());
-        controlPanel.add(sortPanel, BorderLayout.NORTH);
-        controlPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.add(new JScrollPane(bookList), BorderLayout.CENTER);
-        leftPanel.add(controlPanel, BorderLayout.SOUTH);
+        leftPanel.add(sortComboBox, BorderLayout.SOUTH);
 
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(searchPanel, BorderLayout.NORTH);
@@ -122,7 +84,6 @@ public class BookManagement extends JFrame {
         add(leftPanel, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
     }
-
 
     private void loadBooks() {
         books.add(new Book("Harry Potter i Kamień Filozoficzny", "J.K. Rowling", 1997, "Fantasy"));
@@ -147,7 +108,6 @@ public class BookManagement extends JFrame {
         books.add(new Book("Wywiad z wampirem", "Anne Rice", 1976, "Horror"));
     }
 
-
     private void updateBookList() {
         listModel.clear();
         for (Book book : books) {
@@ -155,18 +115,15 @@ public class BookManagement extends JFrame {
         }
     }
 
-
     private void searchBooks() {
-        String query = searchField.getText();
-        Pattern pattern = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
+        String query = searchField.getText().toLowerCase();
         listModel.clear();
         for (Book book : books) {
-            if (pattern.matcher(book.toString()).find()) {
+            if (book.title.toLowerCase().contains(query) || book.author.toLowerCase().contains(query) || book.genre.toLowerCase().contains(query)) {
                 listModel.addElement(book.toString());
             }
         }
     }
-
 
     private void addBook() {
         String title = titleField.getText();
@@ -183,16 +140,6 @@ public class BookManagement extends JFrame {
         updateBookList();
         clearFields();
     }
-
-
-    private void removeBook() {
-        int index = bookList.getSelectedIndex();
-        if (index != -1) {
-            books.remove(index);
-            updateBookList();
-        }
-    }
-
 
     private void sortBooks(String criterion) {
         switch (criterion) {
@@ -211,7 +158,6 @@ public class BookManagement extends JFrame {
         }
         updateBookList();
     }
-
 
     private void clearFields() {
         titleField.setText("");
